@@ -141,7 +141,7 @@ export default function Home() {
           <div style={styles.logoIcon}>
             <Building2 size={18} />
           </div>
-          RealEstate Pro
+          Agnayi Infra Resources CRM
         </div>
         <div style={styles.badge}>Prototype</div>
       </header>
