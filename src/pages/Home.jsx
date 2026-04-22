@@ -1,12 +1,15 @@
-export default function Home({ onNavigate }) {
-  return (
-    <div className="container">
-      <h1>🏠 Welcome to Real Estate Dashboard</h1>
+import { useNavigate } from 'react-router-dom';
 
-      <div className="options">
-        <button onClick={() => onNavigate("client")}>👤 Client</button>
-        <button onClick={() => onNavigate("user")}>👔 User</button>
-      </div>
-    </div>
-  );
+export default function Home() {
+    const navigate = useNavigate();
+    return (
+        <div className="container">
+            <h1>🏠 Welcome to Real Estate Dashboard</h1>
+            <p>Choose your role to get started</p>
+            <div className="options">
+                <button onClick={() => navigate('/client')}>👤 Client</button>
+                <button onClick={() => navigate('/user')}>👔 User</button>
+            </div>
+        </div>
+    );
 }
