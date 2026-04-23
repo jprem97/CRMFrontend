@@ -50,7 +50,6 @@ export default function AgentDashboard() {
         { _id: 'fake3', title: 'Modern Tech Duplex', location: data.profile?.location || 'IT Corridor', price: 45000000, isFake: true }
     ];
 
-    // If the agent has real properties, show them. Otherwise, show the fake ones!
     const displayProperties = data.properties.length > 0 ? data.properties : fakeProperties;
 
     // Mock Trajectory Data for Chart
@@ -97,7 +96,7 @@ export default function AgentDashboard() {
                 </div>
             </div>
 
-            <div className="dashboard">
+            <div className="dashboard" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {/* Score Chart */}
                 <div className="section" style={{ gridColumn: 'span 2' }}>
                     <h2><TrendingUp size={24} color="var(--primary)"/> Performance Trajectory</h2>
@@ -121,7 +120,7 @@ export default function AgentDashboard() {
                 </div>
 
                 {/* Notifications */}
-                <div className="section">
+                <div className="section" style={{ gridColumn: 'span 1' }}>
                     <h2><Bell size={24} color="var(--warning)"/> Action Items</h2>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '250px', overflowY: 'auto' }}>
                         {data.notifications.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>Inbox zero! You're all caught up.</p> : 
@@ -146,7 +145,6 @@ export default function AgentDashboard() {
                         </button>
                     </div>
 
-                    {/* Disclaimer if showing fake properties */}
                     {data.properties.length === 0 && (
                         <div style={{ backgroundColor: '#fffbeb', color: '#b45309', padding: '12px 20px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <Bell size={16}/> <strong>Demo Mode:</strong> You haven't added any properties yet. Showing sample portfolio data.
@@ -245,6 +243,76 @@ export default function AgentDashboard() {
                             }
                         </tbody>
                     </table>
+                </div>
+
+                {/* NEW: Activities Pipeline & Feed */}
+                <div className="section" style={{ gridColumn: 'span 1' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h2 style={{ margin: 0 }}><Activity size={24} color="var(--primary)"/> Activity Log</h2>
+                        <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', fontSize: '12px' }} onClick={() => setActiveForm('activity')}>
+                            <Plus size={16} /> Log New
+                        </button>
+                    </div>
+
+                    {activeForm === 'activity' && (
+                        <form onSubmit={(e) => handleFormSubmit(e, '/activities/create-activity')} style={{marginBottom: '20px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: 'var(--radius-md)'}}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <select name="type" required style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                                    <option value="">Select Interaction Type</option>
+                                    <option value="CALL">📞 Call</option>
+                                    <option value="EMAIL">✉️ Email</option>
+                                    <option value="MEETING">🤝 Meeting</option>
+                                </select>
+                                <textarea name="description" placeholder="Notes/Description..." required rows="2" style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', resize: 'vertical' }}></textarea>
+                                
+                                <select name="client" style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                                    <option value="">Related Client (Optional)</option>
+                                    {data.clients.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                                </select>
+                                <select name="deal" style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                                    <option value="">Related Deal (Optional)</option>
+                                    {data.deals.map(d => <option key={d._id} value={d._id}>{d.property?.title} ({d.client?.name})</option>)}
+                                </select>
+                                
+                                {/* Hidden mode input ensuring manual logs get marked properly */}
+                                <input type="hidden" name="mode" value="MANUAL" />
+                            </div>
+                            <div style={{display: 'flex', gap: '8px', marginTop: '16px'}}>
+                                <button type="submit" style={{ padding: '6px 12px', fontSize: '12px' }}>Save Log</button>
+                                <button type="button" className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => setActiveForm(null)}>Cancel</button>
+                            </div>
+                        </form>
+                    )}
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '350px', overflowY: 'auto', paddingRight: '4px' }}>
+                        {data.activities.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>No activities logged yet.</p> :
+                            data.activities.map(act => (
+                                <div key={act._id} style={{ padding: '16px', border: '1px solid var(--border-color)', borderRadius: '8px', backgroundColor: 'white', position: 'relative' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <span style={{ 
+                                                backgroundColor: act.type === 'CALL' ? '#dbeafe' : act.type === 'EMAIL' ? '#f3e8ff' : act.type === 'MEETING' ? '#fef3c7' : '#e0e7ff', 
+                                                color: act.type === 'CALL' ? '#1d4ed8' : act.type === 'EMAIL' ? '#7e22ce' : act.type === 'MEETING' ? '#b45309' : '#4338ca', 
+                                                padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' 
+                                            }}>
+                                                {act.type}
+                                            </span>
+                                            {act.mode === 'AUTO' && <span style={{ fontSize: '10px', color: '#64748b', backgroundColor: '#f1f5f9', padding: '2px 6px', borderRadius: '10px'}}>AUTO</span>}
+                                        </div>
+                                    </div>
+                                    <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: 'var(--text-main)', lineHeight: '1.4' }}>{act.description}</p>
+                                    
+                                    {/* Show relations if populated from backend */}
+                                    {(act.client || act.deal) && (
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '8px', marginTop: '8px' }}>
+                                            {act.client && <span>👤 Client ref attached</span>}
+                                            {act.deal && <span>💼 Deal ref attached</span>}
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        }
+                    </div>
                 </div>
             </div>
         </div>
