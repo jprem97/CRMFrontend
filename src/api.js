@@ -1,4 +1,4 @@
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const API_BASE = import.meta.env.VITE_API_URL || 'crm-backend-gamma-nine.vercel.app';
 
 export async function apiCall(endpoint, method = 'GET', body = null, headers = {}) {
     const config = {
